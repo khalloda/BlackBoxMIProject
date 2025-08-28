@@ -45,6 +45,9 @@ try {
     $dbConfig = Config::load('database');
     Database::setConfig($dbConfig['default']);
     
+    // Initialize database for models
+    \App\Core\Model::setDatabase(Database::getInstance());
+    
     // Initialize language system
     Language::init(Config::get('app.locale', 'en'));
     

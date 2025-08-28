@@ -23,8 +23,8 @@ class DashboardController extends Controller
         
         $this->setTitle('Dashboard');
         
-        // Use simple dashboard temporarily to avoid database errors
-        return $this->view('dashboard/simple', [
+        // Use main layout with dashboard content
+        return $this->view('dashboard/index', [
             'user' => Auth::user(),
             'flash_messages' => $this->getFlashMessages()
         ]);

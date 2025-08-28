@@ -1,225 +1,148 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
-        
         <!-- Brand -->
         <a class="navbar-brand" href="/dashboard">
             <i class="fas fa-cogs me-2"></i>
-            <span class="d-none d-md-inline"><?= __('app_name') ?></span>
-            <span class="d-md-none">SPMS</span>
+            <?= __('app.name') ?>
         </a>
-        
-        <!-- Mobile Toggle -->
+
+        <!-- Mobile toggle -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        
+
         <!-- Navigation Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                
                 <!-- Dashboard -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/dashboard">
+                    <a class="nav-link <?= $_SERVER['REQUEST_URI'] === '/dashboard' ? 'active' : '' ?>" href="/dashboard">
                         <i class="fas fa-tachometer-alt me-1"></i>
-                        <?= __('nav.dashboard') ?>
+                        <?= __('dashboard.title') ?>
                     </a>
                 </li>
-                
+
                 <!-- Masters Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="mastersDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle <?= strpos($_SERVER['REQUEST_URI'], '/clients') === 0 || strpos($_SERVER['REQUEST_URI'], '/suppliers') === 0 || strpos($_SERVER['REQUEST_URI'], '/products') === 0 || strpos($_SERVER['REQUEST_URI'], '/warehouses') === 0 ? 'active' : '' ?>" 
+                       href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-database me-1"></i>
                         <?= __('nav.masters') ?>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/clients">
-                            <i class="fas fa-users me-2"></i><?= __('nav.clients') ?>
+                            <i class="fas fa-users me-2"></i><?= __('clients.title') ?>
                         </a></li>
                         <li><a class="dropdown-item" href="/suppliers">
-                            <i class="fas fa-truck me-2"></i><?= __('nav.suppliers') ?>
-                        </a></li>
-                        <li><a class="dropdown-item" href="/warehouses">
-                            <i class="fas fa-warehouse me-2"></i><?= __('nav.warehouses') ?>
+                            <i class="fas fa-truck me-2"></i><?= __('suppliers.title') ?>
                         </a></li>
                         <li><a class="dropdown-item" href="/products">
-                            <i class="fas fa-boxes me-2"></i><?= __('nav.products') ?>
+                            <i class="fas fa-box me-2"></i><?= __('products.title') ?>
+                        </a></li>
+                        <li><a class="dropdown-item" href="/warehouses">
+                            <i class="fas fa-warehouse me-2"></i><?= __('warehouses.title') ?>
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/dropdowns">
-                            <i class="fas fa-list me-2"></i><?= __('nav.dropdowns') ?>
+                            <i class="fas fa-list me-2"></i><?= __('dropdowns.title') ?>
                         </a></li>
                     </ul>
                 </li>
-                
+
                 <!-- Sales Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="salesDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle <?= strpos($_SERVER['REQUEST_URI'], '/quotes') === 0 || strpos($_SERVER['REQUEST_URI'], '/sales-orders') === 0 || strpos($_SERVER['REQUEST_URI'], '/invoices') === 0 || strpos($_SERVER['REQUEST_URI'], '/payments') === 0 ? 'active' : '' ?>" 
+                       href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-shopping-cart me-1"></i>
                         <?= __('nav.sales') ?>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/quotes">
-                            <i class="fas fa-file-alt me-2"></i><?= __('nav.quotes') ?>
+                            <i class="fas fa-file-alt me-2"></i><?= __('quotes.title') ?>
                         </a></li>
                         <li><a class="dropdown-item" href="/sales-orders">
-                            <i class="fas fa-shopping-cart me-2"></i><?= __('nav.sales_orders') ?>
+                            <i class="fas fa-shopping-cart me-2"></i><?= __('sales_orders.title') ?>
                         </a></li>
                         <li><a class="dropdown-item" href="/invoices">
-                            <i class="fas fa-file-invoice me-2"></i><?= __('nav.invoices') ?>
+                            <i class="fas fa-file-invoice me-2"></i><?= __('invoices.title') ?>
                         </a></li>
                         <li><a class="dropdown-item" href="/payments">
-                            <i class="fas fa-credit-card me-2"></i><?= __('nav.payments') ?>
+                            <i class="fas fa-credit-card me-2"></i><?= __('payments.title') ?>
                         </a></li>
                     </ul>
                 </li>
-                
+
                 <!-- Inventory Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="inventoryDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-cubes me-1"></i>
+                    <a class="nav-link dropdown-toggle <?= strpos($_SERVER['REQUEST_URI'], '/stock') === 0 || strpos($_SERVER['REQUEST_URI'], '/purchase-orders') === 0 || strpos($_SERVER['REQUEST_URI'], '/grn') === 0 ? 'active' : '' ?>" 
+                       href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-boxes me-1"></i>
                         <?= __('nav.inventory') ?>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/stock">
-                            <i class="fas fa-cubes me-2"></i><?= __('nav.stock') ?>
+                            <i class="fas fa-cubes me-2"></i><?= __('stock.title') ?>
                         </a></li>
                         <li><a class="dropdown-item" href="/purchase-orders">
-                            <i class="fas fa-file-invoice me-2"></i><?= __('nav.purchase_orders') ?>
+                            <i class="fas fa-shopping-bag me-2"></i><?= __('purchase_orders.title') ?>
                         </a></li>
                         <li><a class="dropdown-item" href="/grn">
-                            <i class="fas fa-clipboard-check me-2"></i><?= __('nav.goods_receipt') ?>
-                        </a></li>
-                        <li><a class="dropdown-item" href="/stock/adjustments">
-                            <i class="fas fa-edit me-2"></i><?= __('nav.stock_adjustments') ?>
+                            <i class="fas fa-clipboard-check me-2"></i><?= __('grn.title') ?>
                         </a></li>
                     </ul>
                 </li>
-                
+
                 <!-- Reports -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/reports">
+                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/reports') === 0 ? 'active' : '' ?>" href="/reports">
                         <i class="fas fa-chart-bar me-1"></i>
-                        <?= __('nav.reports') ?>
+                        <?= __('reports.title') ?>
                     </a>
                 </li>
-                
             </ul>
-            
-            <!-- Right Side Navigation -->
+
+            <!-- Right side menu -->
             <ul class="navbar-nav">
-                
                 <!-- Language Switcher -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-globe me-1"></i>
-                        <?= \App\Core\Language::getLanguageName(\App\Core\Language::getCurrentLanguage()) ?>
+                        <?= app('language')->getCurrentLanguage() === 'ar' ? 'العربية' : 'English' ?>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <?php foreach (\App\Core\Language::getSupportedLanguages() as $lang): ?>
-                            <li>
-                                <a class="dropdown-item <?= $lang === \App\Core\Language::getCurrentLanguage() ? 'active' : '' ?>" 
-                                   href="/language/<?= $lang ?>">
-                                    <?= \App\Core\Language::getLanguageName($lang) ?>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
+                        <li><a class="dropdown-item" href="/language/en">
+                            <i class="fas fa-flag-usa me-2"></i>English
+                        </a></li>
+                        <li><a class="dropdown-item" href="/language/ar">
+                            <i class="fas fa-flag me-2"></i>العربية
+                        </a></li>
                     </ul>
                 </li>
-                
-                <!-- Notifications -->
+
+                <!-- User Menu -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-bell"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount">
-                            <?= ($stats['low_stock_items'] ?? 0) + count($pending_items ?? []) ?>
-                        </span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
-                        <li><h6 class="dropdown-header">Notifications</h6></li>
-                        
-                        <?php if (!empty($low_stock_items)): ?>
-                            <?php foreach (array_slice($low_stock_items, 0, 3) as $item): ?>
-                                <li>
-                                    <a class="dropdown-item" href="/stock">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-exclamation-triangle text-danger me-2"></i>
-                                            <div>
-                                                <div class="fw-bold"><?= htmlspecialchars($item['code']) ?></div>
-                                                <small class="text-muted">Low stock: <?= $item['current_stock'] ?></small>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                        
-                        <?php if (!empty($pending_items)): ?>
-                            <?php foreach (array_slice($pending_items, 0, 3) as $item): ?>
-                                <li>
-                                    <a class="dropdown-item" href="/<?= $item['type'] ?>s/<?= $item['id'] ?>">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-clock text-warning me-2"></i>
-                                            <div>
-                                                <div class="fw-bold"><?= htmlspecialchars($item['number']) ?></div>
-                                                <small class="text-muted"><?= htmlspecialchars($item['description']) ?></small>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                        
-                        <?php if (empty($low_stock_items) && empty($pending_items)): ?>
-                            <li><span class="dropdown-item-text text-muted">No notifications</span></li>
-                        <?php endif; ?>
-                        
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-center" href="/notifications">View All</a></li>
-                    </ul>
-                </li>
-                
-                <!-- User Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-user-circle me-1"></i>
-                        <?= htmlspecialchars($user['full_name'] ?? 'User') ?>
+                        <?= htmlspecialchars(Auth::user()['full_name'] ?? 'User') ?>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><h6 class="dropdown-header">
-                            <?= htmlspecialchars($user['full_name'] ?? 'User') ?><br>
-                            <small class="text-muted"><?= htmlspecialchars($user['role'] ?? 'user') ?></small>
-                        </h6></li>
-                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/profile">
                             <i class="fas fa-user me-2"></i><?= __('nav.profile') ?>
                         </a></li>
                         <li><a class="dropdown-item" href="/change-password">
-                            <i class="fas fa-key me-2"></i><?= __('auth.change_password') ?>
+                            <i class="fas fa-key me-2"></i><?= __('nav.change_password') ?>
                         </a></li>
-                        
-                        <?php if (\App\Core\Auth::hasAnyRole(['admin', 'manager'])): ?>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/settings">
-                                <i class="fas fa-cog me-2"></i><?= __('nav.settings') ?>
-                            </a></li>
-                            <?php if (\App\Core\Auth::hasRole('admin')): ?>
-                                <li><a class="dropdown-item" href="/users">
-                                    <i class="fas fa-users-cog me-2"></i><?= __('nav.users') ?>
-                                </a></li>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                        
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="/logout">
-                            <i class="fas fa-sign-out-alt me-2"></i><?= __('auth.logout') ?>
+                        <li><a class="dropdown-item" href="/settings">
+                            <i class="fas fa-cog me-2"></i><?= __('nav.settings') ?>
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i><?= __('nav.logout') ?>
                         </a></li>
                     </ul>
                 </li>
-                
             </ul>
         </div>
     </div>
 </nav>
-
-<!-- Add some spacing after navbar -->
-<div class="navbar-spacer" style="height: 20px;"></div>
