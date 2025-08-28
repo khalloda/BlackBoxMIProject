@@ -39,8 +39,14 @@ class ClientController extends Controller
         $params = [];
 
         if ($search) {
-            $sql .= " AND (code LIKE :search OR company_name LIKE :search OR contact_person LIKE :search OR first_name LIKE :search OR last_name LIKE :search OR email LIKE :search)";
-            $params['search'] = '%' . $search . '%';
+            $sql .= " AND (code LIKE :search1 OR company_name LIKE :search2 OR contact_person LIKE :search3 OR first_name LIKE :search4 OR last_name LIKE :search5 OR email LIKE :search6)";
+            $searchParam = '%' . $search . '%';
+            $params['search1'] = $searchParam;
+            $params['search2'] = $searchParam;
+            $params['search3'] = $searchParam;
+            $params['search4'] = $searchParam;
+            $params['search5'] = $searchParam;
+            $params['search6'] = $searchParam;
         }
 
         if ($type) {
@@ -400,8 +406,14 @@ class ClientController extends Controller
         $params = [];
 
         if ($search) {
-            $sql .= " AND (code LIKE :search OR company_name LIKE :search OR contact_person LIKE :search OR first_name LIKE :search OR last_name LIKE :search OR email LIKE :search)";
-            $params['search'] = '%' . $search . '%';
+            $sql .= " AND (code LIKE :search1 OR company_name LIKE :search2 OR contact_person LIKE :search3 OR first_name LIKE :search4 OR last_name LIKE :search5 OR email LIKE :search6)";
+            $searchParam = '%' . $search . '%';
+            $params['search1'] = $searchParam;
+            $params['search2'] = $searchParam;
+            $params['search3'] = $searchParam;
+            $params['search4'] = $searchParam;
+            $params['search5'] = $searchParam;
+            $params['search6'] = $searchParam;
         }
 
         if ($type) {

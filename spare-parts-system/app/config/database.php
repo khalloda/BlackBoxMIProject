@@ -10,11 +10,11 @@ return [
     // Default database connection
     'default' => [
         'driver' => 'mysql',
-        'host' => 'localhost',
+        'host' => 'p3nlmysql13plsk.secureserver.net',
         'port' => 3306,
-        'database' => 'spare_parts_system',
-        'username' => 'root',
-        'password' => '',
+        'database' => 'blackbox_mi',
+        'username' => 'sp',
+        'password' => 'Mi@SP@123',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
         'options' => [
