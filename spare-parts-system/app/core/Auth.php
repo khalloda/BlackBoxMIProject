@@ -2,12 +2,7 @@
 /**
  * Authentication System with Secure Session Management
  * 
- * This class provides secure authentication with:
- * - Password hashing using PHP's password_hash()
- * - Session management with security features
- * - Login attempt limiting
- * - Remember me functionality
- * - Role-based access control
+ * FIXED: Session handling to prevent warnings
  */
 
 namespace App\Core;
@@ -22,24 +17,22 @@ class Auth
     private static $lockoutTime = 900; // 15 minutes
 
     /**
-     * Start secure session
+     * Start secure session - FIXED to prevent warnings
      */
     public static function startSession()
     {
-        if (!self::$sessionStarted) {
-            // Configure session security
+        if (!self::$sessionStarted && session_status() === PHP_SESSION_NONE) {
+            // Configure session security BEFORE starting session
             ini_set('session.cookie_httponly', 1);
-            ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+            ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) ? 1 : 0);
             ini_set('session.use_strict_mode', 1);
             ini_set('session.cookie_samesite', 'Strict');
             
-            // Set session name
+            // Set session name BEFORE starting session
             session_name('SPMS_SESSION');
             
             // Start session
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+            session_start();
             
             self::$sessionStarted = true;
             
@@ -53,11 +46,6 @@ class Auth
 
     /**
      * Attempt to log in a user
-     * 
-     * @param string $username Username or email
-     * @param string $password Password
-     * @param bool $remember Remember me option
-     * @return bool Login success
      */
     public static function login($username, $password, $remember = false)
     {
@@ -124,8 +112,6 @@ class Auth
 
     /**
      * Check if user is authenticated
-     * 
-     * @return bool Authentication status
      */
     public static function check()
     {
@@ -135,8 +121,6 @@ class Auth
 
     /**
      * Get current authenticated user
-     * 
-     * @return array|null User data or null
      */
     public static function user()
     {
@@ -146,8 +130,6 @@ class Auth
 
     /**
      * Get current user ID
-     * 
-     * @return int|null User ID or null
      */
     public static function id()
     {
@@ -157,9 +139,6 @@ class Auth
 
     /**
      * Check if user has specific role
-     * 
-     * @param string $role Role to check
-     * @return bool Has role
      */
     public static function hasRole($role)
     {
@@ -169,9 +148,6 @@ class Auth
 
     /**
      * Check if user has any of the specified roles
-     * 
-     * @param array $roles Roles to check
-     * @return bool Has any role
      */
     public static function hasAnyRole($roles)
     {
@@ -181,8 +157,6 @@ class Auth
 
     /**
      * Require authentication
-     * 
-     * @param string $redirectUrl Redirect URL if not authenticated
      */
     public static function requireAuth($redirectUrl = '/login')
     {
@@ -194,9 +168,6 @@ class Auth
 
     /**
      * Require specific role
-     * 
-     * @param string $role Required role
-     * @param string $redirectUrl Redirect URL if unauthorized
      */
     public static function requireRole($role, $redirectUrl = '/unauthorized')
     {
@@ -210,9 +181,6 @@ class Auth
 
     /**
      * Require any of the specified roles
-     * 
-     * @param array $roles Required roles
-     * @param string $redirectUrl Redirect URL if unauthorized
      */
     public static function requireAnyRole($roles, $redirectUrl = '/unauthorized')
     {
@@ -226,9 +194,6 @@ class Auth
 
     /**
      * Hash a password
-     * 
-     * @param string $password Plain text password
-     * @return string Hashed password
      */
     public static function hashPassword($password)
     {
@@ -237,10 +202,6 @@ class Auth
 
     /**
      * Verify a password
-     * 
-     * @param string $password Plain text password
-     * @param string $hash Hashed password
-     * @return bool Password matches
      */
     public static function verifyPassword($password, $hash)
     {
@@ -249,9 +210,6 @@ class Auth
 
     /**
      * Set user session
-     * 
-     * @param array $user User data
-     * @param bool $remember Remember me option
      */
     private static function setUserSession($user, $remember = false)
     {
@@ -282,7 +240,7 @@ class Auth
     {
         // Check session timeout
         if (isset($_SESSION['login_time'])) {
-            $sessionTimeout = Config::get('session_timeout', 3600);
+            $sessionTimeout = 3600; // 1 hour
             if (time() - $_SESSION['login_time'] > $sessionTimeout) {
                 self::logout();
                 return;
@@ -303,8 +261,6 @@ class Auth
 
     /**
      * Set remember me token
-     * 
-     * @param int $userId User ID
      */
     private static function setRememberToken($userId)
     {
@@ -321,8 +277,6 @@ class Auth
 
     /**
      * Login from remember token
-     * 
-     * @param string $token Remember token
      */
     private static function loginFromRememberToken($token)
     {
@@ -357,13 +311,10 @@ class Auth
 
     /**
      * Check if IP is locked out
-     * 
-     * @param string $username Username
-     * @return bool Is locked out
      */
     private static function isLockedOut($username)
     {
-        $key = 'login_attempts_' . md5($username . $_SERVER['REMOTE_ADDR']);
+        $key = 'login_attempts_' . md5($username . ($_SERVER['REMOTE_ADDR'] ?? ''));
         
         if (isset($_SESSION[$key])) {
             $attempts = $_SESSION[$key];
@@ -383,12 +334,10 @@ class Auth
 
     /**
      * Record failed login attempt
-     * 
-     * @param string $username Username
      */
     private static function recordFailedAttempt($username)
     {
-        $key = 'login_attempts_' . md5($username . $_SERVER['REMOTE_ADDR']);
+        $key = 'login_attempts_' . md5($username . ($_SERVER['REMOTE_ADDR'] ?? ''));
         
         if (!isset($_SESSION[$key])) {
             $_SESSION[$key] = ['count' => 0, 'last_attempt' => 0];
@@ -400,24 +349,19 @@ class Auth
 
     /**
      * Clear failed login attempts
-     * 
-     * @param string $username Username
      */
     private static function clearFailedAttempts($username)
     {
-        $key = 'login_attempts_' . md5($username . $_SERVER['REMOTE_ADDR']);
+        $key = 'login_attempts_' . md5($username . ($_SERVER['REMOTE_ADDR'] ?? ''));
         unset($_SESSION[$key]);
     }
 
     /**
      * Get remaining lockout time
-     * 
-     * @param string $username Username
-     * @return int Remaining seconds
      */
     public static function getRemainingLockoutTime($username)
     {
-        $key = 'login_attempts_' . md5($username . $_SERVER['REMOTE_ADDR']);
+        $key = 'login_attempts_' . md5($username . ($_SERVER['REMOTE_ADDR'] ?? ''));
         
         if (isset($_SESSION[$key])) {
             $attempts = $_SESSION[$key];
@@ -433,13 +377,10 @@ class Auth
 
     /**
      * Get failed login attempts count
-     * 
-     * @param string $username Username
-     * @return int Attempts count
      */
     public static function getFailedAttempts($username)
     {
-        $key = 'login_attempts_' . md5($username . $_SERVER['REMOTE_ADDR']);
+        $key = 'login_attempts_' . md5($username . ($_SERVER['REMOTE_ADDR'] ?? ''));
         
         if (isset($_SESSION[$key])) {
             return $_SESSION[$key]['count'];

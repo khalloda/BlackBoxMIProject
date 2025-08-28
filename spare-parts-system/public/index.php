@@ -29,6 +29,9 @@ require_once APP_ROOT . '/app/core/Autoloader.php';
 // Register autoloader
 App\Core\Autoloader::register();
 
+// Load helper functions FIRST to ensure __() function is available
+require_once APP_ROOT . '/app/core/helpers.php';
+
 // Load configuration
 use App\Core\Config;
 use App\Core\Database;
@@ -68,7 +71,7 @@ try {
 }
 
 /**
- * Set up application routes
+ * Set up application routes - FIXED: Complete routing
  */
 function setupRoutes()
 {
@@ -80,11 +83,15 @@ function setupRoutes()
     Router::get('/login', 'AuthController@showLogin');
     Router::post('/login', 'AuthController@login');
     Router::get('/logout', 'AuthController@logout');
+    Router::get('/change-password', 'AuthController@showChangePassword');
+    Router::post('/change-password', 'AuthController@changePassword');
     
     // Dashboard
     Router::get('/dashboard', 'DashboardController@index');
+    Router::get('/dashboard/data', 'DashboardController@getData');
+    Router::get('/dashboard/chart', 'DashboardController@getSalesChart');
     
-    // Masters routes
+    // Clients routes - COMPLETE CRUD
     Router::get('/clients', 'ClientController@index');
     Router::get('/clients/create', 'ClientController@create');
     Router::post('/clients', 'ClientController@store');
@@ -92,7 +99,11 @@ function setupRoutes()
     Router::get('/clients/{id}/edit', 'ClientController@edit');
     Router::post('/clients/{id}', 'ClientController@update');
     Router::post('/clients/{id}/delete', 'ClientController@delete');
+    Router::post('/clients/{id}/toggle-status', 'ClientController@toggleStatus');
+    Router::get('/clients/search', 'ClientController@search');
+    Router::get('/clients/export', 'ClientController@export');
     
+    // Suppliers routes - COMPLETE CRUD
     Router::get('/suppliers', 'SupplierController@index');
     Router::get('/suppliers/create', 'SupplierController@create');
     Router::post('/suppliers', 'SupplierController@store');
@@ -100,7 +111,11 @@ function setupRoutes()
     Router::get('/suppliers/{id}/edit', 'SupplierController@edit');
     Router::post('/suppliers/{id}', 'SupplierController@update');
     Router::post('/suppliers/{id}/delete', 'SupplierController@delete');
+    Router::post('/suppliers/{id}/toggle-status', 'SupplierController@toggleStatus');
+    Router::get('/suppliers/search', 'SupplierController@search');
+    Router::get('/suppliers/export', 'SupplierController@export');
     
+    // Warehouses routes - COMPLETE CRUD
     Router::get('/warehouses', 'WarehouseController@index');
     Router::get('/warehouses/create', 'WarehouseController@create');
     Router::post('/warehouses', 'WarehouseController@store');
@@ -108,7 +123,11 @@ function setupRoutes()
     Router::get('/warehouses/{id}/edit', 'WarehouseController@edit');
     Router::post('/warehouses/{id}', 'WarehouseController@update');
     Router::post('/warehouses/{id}/delete', 'WarehouseController@delete');
+    Router::post('/warehouses/{id}/toggle-status', 'WarehouseController@toggleStatus');
+    Router::get('/warehouses/search', 'WarehouseController@search');
+    Router::get('/warehouses/export', 'WarehouseController@export');
     
+    // Products routes - COMPLETE CRUD
     Router::get('/products', 'ProductController@index');
     Router::get('/products/create', 'ProductController@create');
     Router::post('/products', 'ProductController@store');
@@ -116,8 +135,12 @@ function setupRoutes()
     Router::get('/products/{id}/edit', 'ProductController@edit');
     Router::post('/products/{id}', 'ProductController@update');
     Router::post('/products/{id}/delete', 'ProductController@delete');
+    Router::post('/products/{id}/toggle-status', 'ProductController@toggleStatus');
+    Router::get('/products/search', 'ProductController@search');
+    Router::get('/products/export', 'ProductController@export');
+    Router::post('/products/generate-code', 'ProductController@generateCode');
     
-    // Dropdown management
+    // Dropdown management routes
     Router::get('/dropdowns', 'DropdownController@index');
     Router::get('/dropdowns/{type}', 'DropdownController@manage');
     Router::post('/dropdowns/{type}', 'DropdownController@store');
@@ -128,8 +151,11 @@ function setupRoutes()
     Router::get('/api/car-models/{makeId}', 'ApiController@getCarModels');
     Router::get('/api/products/search', 'ApiController@searchProducts');
     Router::get('/api/clients/search', 'ApiController@searchClients');
+    Router::get('/api/suppliers/search', 'ApiController@searchSuppliers');
+    Router::get('/api/warehouses/search', 'ApiController@searchWarehouses');
+    Router::post('/api/keep-alive', 'ApiController@keepAlive');
     
-    // Sales routes
+    // Quotes routes - COMPLETE CRUD
     Router::get('/quotes', 'QuoteController@index');
     Router::get('/quotes/create', 'QuoteController@create');
     Router::post('/quotes', 'QuoteController@store');
@@ -142,7 +168,9 @@ function setupRoutes()
     Router::post('/quotes/{id}/reject', 'QuoteController@reject');
     Router::get('/quotes/{id}/pdf', 'QuoteController@pdf');
     Router::post('/quotes/{id}/convert', 'QuoteController@convertToOrder');
+    Router::get('/quotes/export', 'QuoteController@export');
     
+    // Sales Orders routes - COMPLETE CRUD
     Router::get('/sales-orders', 'SalesOrderController@index');
     Router::get('/sales-orders/create', 'SalesOrderController@create');
     Router::post('/sales-orders', 'SalesOrderController@store');
@@ -152,9 +180,12 @@ function setupRoutes()
     Router::post('/sales-orders/{id}/delete', 'SalesOrderController@delete');
     Router::post('/sales-orders/{id}/ship', 'SalesOrderController@ship');
     Router::post('/sales-orders/{id}/deliver', 'SalesOrderController@deliver');
+    Router::post('/sales-orders/{id}/cancel', 'SalesOrderController@cancel');
     Router::get('/sales-orders/{id}/pdf', 'SalesOrderController@pdf');
     Router::post('/sales-orders/{id}/invoice', 'SalesOrderController@createInvoice');
+    Router::get('/sales-orders/export', 'SalesOrderController@export');
     
+    // Invoices routes - COMPLETE CRUD
     Router::get('/invoices', 'InvoiceController@index');
     Router::get('/invoices/create', 'InvoiceController@create');
     Router::post('/invoices', 'InvoiceController@store');
@@ -163,8 +194,11 @@ function setupRoutes()
     Router::post('/invoices/{id}', 'InvoiceController@update');
     Router::post('/invoices/{id}/delete', 'InvoiceController@delete');
     Router::post('/invoices/{id}/send', 'InvoiceController@send');
+    Router::post('/invoices/{id}/mark-paid', 'InvoiceController@markPaid');
     Router::get('/invoices/{id}/pdf', 'InvoiceController@pdf');
+    Router::get('/invoices/export', 'InvoiceController@export');
     
+    // Payments routes - COMPLETE CRUD
     Router::get('/payments', 'PaymentController@index');
     Router::get('/payments/create', 'PaymentController@create');
     Router::post('/payments', 'PaymentController@store');
@@ -172,14 +206,17 @@ function setupRoutes()
     Router::get('/payments/{id}/edit', 'PaymentController@edit');
     Router::post('/payments/{id}', 'PaymentController@update');
     Router::post('/payments/{id}/delete', 'PaymentController@delete');
+    Router::get('/payments/export', 'PaymentController@export');
     
-    // Inventory routes
+    // Stock Management routes
     Router::get('/stock', 'StockController@index');
     Router::get('/stock/adjustments', 'StockController@adjustments');
     Router::get('/stock/adjustments/create', 'StockController@createAdjustment');
     Router::post('/stock/adjustments', 'StockController@storeAdjustment');
     Router::get('/stock/movements', 'StockController@movements');
+    Router::get('/stock/export', 'StockController@export');
     
+    // Purchase Orders routes
     Router::get('/purchase-orders', 'PurchaseOrderController@index');
     Router::get('/purchase-orders/create', 'PurchaseOrderController@create');
     Router::post('/purchase-orders', 'PurchaseOrderController@store');
@@ -190,7 +227,9 @@ function setupRoutes()
     Router::post('/purchase-orders/{id}/send', 'PurchaseOrderController@send');
     Router::get('/purchase-orders/{id}/pdf', 'PurchaseOrderController@pdf');
     Router::get('/purchase-orders/{id}/receive', 'PurchaseOrderController@receive');
+    Router::get('/purchase-orders/export', 'PurchaseOrderController@export');
     
+    // GRN (Goods Receipt Notes) routes
     Router::get('/grn', 'GRNController@index');
     Router::get('/grn/create', 'GRNController@create');
     Router::post('/grn', 'GRNController@store');
@@ -198,29 +237,38 @@ function setupRoutes()
     Router::get('/grn/{id}/edit', 'GRNController@edit');
     Router::post('/grn/{id}', 'GRNController@update');
     Router::post('/grn/{id}/complete', 'GRNController@complete');
+    Router::get('/grn/export', 'GRNController@export');
     
     // Reports routes
     Router::get('/reports', 'ReportController@index');
     Router::get('/reports/sales', 'ReportController@sales');
     Router::get('/reports/inventory', 'ReportController@inventory');
     Router::get('/reports/financial', 'ReportController@financial');
+    Router::get('/reports/clients', 'ReportController@clients');
+    Router::get('/reports/products', 'ReportController@products');
     Router::post('/reports/generate', 'ReportController@generate');
     Router::get('/reports/export/{type}', 'ReportController@export');
     
     // Settings routes
     Router::get('/settings', 'SettingController@index');
     Router::post('/settings', 'SettingController@update');
+    
+    // User Management routes
     Router::get('/users', 'UserController@index');
     Router::get('/users/create', 'UserController@create');
     Router::post('/users', 'UserController@store');
+    Router::get('/users/{id}', 'UserController@show');
     Router::get('/users/{id}/edit', 'UserController@edit');
     Router::post('/users/{id}', 'UserController@update');
     Router::post('/users/{id}/delete', 'UserController@delete');
+    Router::post('/users/{id}/toggle-status', 'UserController@toggleStatus');
+    Router::post('/users/{id}/reset-password', 'UserController@resetPassword');
     
     // Profile routes
     Router::get('/profile', 'ProfileController@index');
     Router::post('/profile', 'ProfileController@update');
     Router::post('/profile/password', 'ProfileController@changePassword');
+    Router::post('/profile/avatar', 'ProfileController@uploadAvatar');
     
     // Language switching
     Router::get('/language/{lang}', 'LanguageController@switch');
@@ -229,6 +277,10 @@ function setupRoutes()
     Router::get('/404', 'ErrorController@notFound');
     Router::get('/403', 'ErrorController@forbidden');
     Router::get('/500', 'ErrorController@serverError');
+    Router::get('/unauthorized', 'ErrorController@unauthorized');
+    
+    // Catch-all route for 404
+    Router::get('/{path}', 'ErrorController@notFound');
 }
 
 /**
