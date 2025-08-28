@@ -19,14 +19,27 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Temporarily skip auth check for testing
-        // $this->requireAuth();
+        $this->requireAuth();
         
-        $this->setTitle('Dashboard');
+        $this->setTitle(__('dashboard.title'));
         
-        // Use simple dashboard temporarily to avoid database errors
-        return $this->view('dashboard/simple', [
-            'user' => Auth::user() ?: ['full_name' => 'Test User', 'role' => 'admin'],
+        // Get dashboard statistics
+        $stats = $this->getDashboardStats();
+        
+        // Get recent activities
+        $recentActivities = $this->getRecentActivities();
+        
+        // Get low stock alerts
+        $lowStockItems = $this->getLowStockItems();
+        
+        // Get pending items
+        $pendingItems = $this->getPendingItems();
+        
+        return $this->view('dashboard/index', [
+            'stats' => $stats,
+            'recent_activities' => $recentActivities,
+            'low_stock_items' => $lowStockItems,
+            'pending_items' => $pendingItems,
             'flash_messages' => $this->getFlashMessages()
         ]);
     }
