@@ -9,7 +9,7 @@ namespace App\Core;
 
 use App\Models\User;
 
-class Auth
+class Auth_Fixed
 {
     private static $user = null;
     private static $sessionStarted = false;
@@ -65,7 +65,7 @@ class Auth
         // Set current user
         self::$user = $_SESSION['user_data'];
         
-        // Force session write and restart for better compatibility
+        // Force session write
         session_write_close();
         session_start();
         
@@ -95,12 +95,11 @@ class Auth
     {
         self::startSession();
         
-        // Check multiple indicators for robust authentication check
+        // Check multiple indicators
         return self::$user !== null && 
                isset($_SESSION['authenticated']) && 
                $_SESSION['authenticated'] === true &&
-               isset($_SESSION['user_id']) &&
-               isset($_SESSION['user_data']);
+               isset($_SESSION['user_id']);
     }
 
     /**
@@ -127,10 +126,7 @@ class Auth
     private static function loadUserFromSession()
     {
         // Simple session loading without timeout checks for now
-        if (isset($_SESSION['user_data']) && 
-            isset($_SESSION['authenticated']) && 
-            $_SESSION['authenticated'] === true &&
-            isset($_SESSION['user_id'])) {
+        if (isset($_SESSION['user_data']) && isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
             self::$user = $_SESSION['user_data'];
         }
     }
@@ -161,52 +157,4 @@ class Auth
     {
         return password_verify($password, $hash);
     }
-
-    /**
-     * Check if user has specific role
-     */
-    public static function hasRole($role)
-    {
-        $user = self::user();
-        return $user && $user['role'] === $role;
-    }
-
-    /**
-     * Check if user has any of the specified roles
-     */
-    public static function hasAnyRole($roles)
-    {
-        $user = self::user();
-        return $user && in_array($user['role'], $roles);
-    }
-
-    /**
-     * Require specific role
-     */
-    public static function requireRole($role, $redirectUrl = '/unauthorized')
-    {
-        self::requireAuth();
-        
-        if (!self::hasRole($role)) {
-            header('Location: ' . $redirectUrl);
-            exit;
-        }
-    }
-
-    /**
-     * Require any of the specified roles
-     */
-    public static function requireAnyRole($roles, $redirectUrl = '/unauthorized')
-    {
-        self::requireAuth();
-        
-        if (!self::hasAnyRole($roles)) {
-            header('Location: ' . $redirectUrl);
-            exit;
-        }
-    }
-
-    // Stub methods for compatibility with existing AuthController
-    public static function getRemainingLockoutTime($username) { return 0; }
-    public static function getFailedAttempts($username) { return 0; }
 }
