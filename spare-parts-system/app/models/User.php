@@ -58,10 +58,13 @@ class User extends Model
     public function findByUsernameOrEmail($identifier)
     {
         $sql = "SELECT * FROM {$this->table} 
-                WHERE (username = :identifier OR email = :identifier) 
+                WHERE (username = :username OR email = :email) 
                 AND is_active = 1";
         
-        return $this->db->selectOne($sql, ['identifier' => $identifier]);
+        return $this->db->selectOne($sql, [
+            'username' => $identifier,
+            'email' => $identifier
+        ]);
     }
 
     /**
@@ -284,17 +287,19 @@ class User extends Model
      */
     public function search($query, $limit = 20)
     {
+        // Ensure limit is a positive integer to prevent SQL injection
+        $limit = max(1, min(1000, (int)$limit));
+        
         $sql = "SELECT * FROM {$this->table} 
                 WHERE (username LIKE :query 
                    OR email LIKE :query 
                    OR full_name LIKE :query)
                 AND is_active = 1
                 ORDER BY full_name
-                LIMIT :limit";
+                LIMIT {$limit}";
         
         $params = [
-            'query' => '%' . $query . '%',
-            'limit' => $limit
+            'query' => '%' . $query . '%'
         ];
         
         return $this->db->select($sql, $params);

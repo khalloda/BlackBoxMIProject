@@ -69,6 +69,9 @@ class Client extends Model
      */
     public function searchClients($query, $limit = 20)
     {
+        // Ensure limit is a positive integer to prevent SQL injection
+        $limit = max(1, min(1000, (int)$limit));
+        
         $sql = "SELECT * FROM {$this->table} 
                 WHERE (code LIKE :query 
                    OR company_name LIKE :query 
@@ -80,11 +83,10 @@ class Client extends Model
                    OR mobile LIKE :query)
                 AND is_active = 1
                 ORDER BY company_name, first_name
-                LIMIT :limit";
+                LIMIT {$limit}";
         
         return $this->db->select($sql, [
-            'query' => '%' . $query . '%',
-            'limit' => $limit
+            'query' => '%' . $query . '%'
         ]);
     }
 
@@ -250,15 +252,18 @@ class Client extends Model
      */
     public function getTopClientsBySales($limit = 10)
     {
+        // Ensure limit is a positive integer to prevent SQL injection
+        $limit = max(1, min(100, (int)$limit));
+        
         $sql = "SELECT c.*, SUM(i.total_amount) as total_sales
                 FROM {$this->table} c
                 INNER JOIN invoices i ON c.id = i.client_id
                 WHERE c.is_active = 1 AND i.status != 'cancelled'
                 GROUP BY c.id
                 ORDER BY total_sales DESC
-                LIMIT :limit";
+                LIMIT {$limit}";
         
-        return $this->db->select($sql, ['limit' => $limit]);
+        return $this->db->select($sql);
     }
 
     /**
@@ -378,16 +383,18 @@ class Client extends Model
      */
     public function getClientQuotes($clientId, $limit = 10)
     {
+        // Ensure limit is a positive integer to prevent SQL injection
+        $limit = max(1, min(100, (int)$limit));
+        
         $sql = "SELECT q.*, u.full_name as created_by_name
                 FROM quotes q
                 LEFT JOIN users u ON q.created_by = u.id
                 WHERE q.client_id = :client_id
                 ORDER BY q.created_at DESC
-                LIMIT :limit";
+                LIMIT {$limit}";
         
         return $this->db->select($sql, [
-            'client_id' => $clientId,
-            'limit' => $limit
+            'client_id' => $clientId
         ]);
     }
 
@@ -396,16 +403,18 @@ class Client extends Model
      */
     public function getClientOrders($clientId, $limit = 10)
     {
+        // Ensure limit is a positive integer to prevent SQL injection
+        $limit = max(1, min(100, (int)$limit));
+        
         $sql = "SELECT so.*, u.full_name as created_by_name
                 FROM sales_orders so
                 LEFT JOIN users u ON so.created_by = u.id
                 WHERE so.client_id = :client_id
                 ORDER BY so.created_at DESC
-                LIMIT :limit";
+                LIMIT {$limit}";
         
         return $this->db->select($sql, [
-            'client_id' => $clientId,
-            'limit' => $limit
+            'client_id' => $clientId
         ]);
     }
 
@@ -414,16 +423,18 @@ class Client extends Model
      */
     public function getClientInvoices($clientId, $limit = 10)
     {
+        // Ensure limit is a positive integer to prevent SQL injection
+        $limit = max(1, min(100, (int)$limit));
+        
         $sql = "SELECT i.*, u.full_name as created_by_name
                 FROM invoices i
                 LEFT JOIN users u ON i.created_by = u.id
                 WHERE i.client_id = :client_id
                 ORDER BY i.created_at DESC
-                LIMIT :limit";
+                LIMIT {$limit}";
         
         return $this->db->select($sql, [
-            'client_id' => $clientId,
-            'limit' => $limit
+            'client_id' => $clientId
         ]);
     }
 
@@ -432,17 +443,19 @@ class Client extends Model
      */
     public function getClientPayments($clientId, $limit = 10)
     {
+        // Ensure limit is a positive integer to prevent SQL injection
+        $limit = max(1, min(100, (int)$limit));
+        
         $sql = "SELECT p.*, i.invoice_number, u.full_name as created_by_name
                 FROM payments p
                 LEFT JOIN invoices i ON p.invoice_id = i.id
                 LEFT JOIN users u ON p.created_by = u.id
                 WHERE p.client_id = :client_id
                 ORDER BY p.created_at DESC
-                LIMIT :limit";
+                LIMIT {$limit}";
         
         return $this->db->select($sql, [
-            'client_id' => $clientId,
-            'limit' => $limit
+            'client_id' => $clientId
         ]);
     }
 }
