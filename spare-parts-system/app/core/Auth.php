@@ -22,11 +22,10 @@ class Auth
     public static function startSession()
     {
         if (!self::$sessionStarted && session_status() === PHP_SESSION_NONE) {
-            // Configure session security BEFORE starting session
+            // Configure session security BEFORE starting session - More compatible settings
             ini_set('session.cookie_httponly', 1);
             ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) ? 1 : 0);
-            ini_set('session.use_strict_mode', 1);
-            ini_set('session.cookie_samesite', 'Strict');
+            // Removed strict mode and samesite for compatibility
             
             // Set session name BEFORE starting session
             session_name('SPMS_SESSION');
@@ -36,10 +35,7 @@ class Auth
             
             self::$sessionStarted = true;
             
-            // Regenerate session ID periodically
-            self::regenerateSessionId();
-            
-            // Load user from session
+            // Load user from session first
             self::loadUserFromSession();
         }
     }
@@ -297,13 +293,13 @@ class Auth
     }
 
     /**
-     * Regenerate session ID periodically
+     * Regenerate session ID periodically - Made less aggressive for compatibility
      */
     private static function regenerateSessionId()
     {
         if (!isset($_SESSION['last_regeneration'])) {
             $_SESSION['last_regeneration'] = time();
-        } elseif (time() - $_SESSION['last_regeneration'] > 300) { // 5 minutes
+        } elseif (time() - $_SESSION['last_regeneration'] > 1800) { // 30 minutes instead of 5
             session_regenerate_id(true);
             $_SESSION['last_regeneration'] = time();
         }

@@ -91,6 +91,9 @@ function setupRoutes()
     Router::get('/dashboard/data', 'DashboardController@getData');
     Router::get('/dashboard/chart', 'DashboardController@getSalesChart');
     
+    // Debug route
+    Router::get('/debug', 'DebugController@index');
+    
     // Clients routes - COMPLETE CRUD
     Router::get('/clients', 'ClientController@index');
     Router::get('/clients/create', 'ClientController@create');
