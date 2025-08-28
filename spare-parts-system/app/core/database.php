@@ -22,6 +22,7 @@ class Database
     private static $defaultConnection = 'default';
     private static $queryLog = [];
     private static $logQueries = false;
+    private static ?Database $instance = null;
 
     private $pdo;
     private $connectionName;
@@ -36,6 +37,31 @@ class Database
     {
         $this->connectionName = $connectionName ?: self::$defaultConnection;
         $this->connect();
+    }
+
+    /**
+     * Get singleton instance
+     * 
+     * @return Database Database instance
+     */
+    public static function getInstance(): Database
+    {
+        if (self::$instance === null) {
+            // Load database configuration if not already loaded
+            if (empty(self::$connections[self::$defaultConnection])) {
+                $configPath = __DIR__ . '/../config/database.php';
+                if (file_exists($configPath)) {
+                    $dbConfig = require $configPath;
+                    self::setConfig($dbConfig['default']);
+                } else {
+                    throw new Exception('Database configuration not found');
+                }
+            }
+            
+            self::$instance = new self(self::$defaultConnection);
+        }
+        
+        return self::$instance;
     }
 
     /**
@@ -362,6 +388,29 @@ class Database
     public function getPdo()
     {
         return $this->pdo;
+    }
+
+    /**
+     * Prepare a statement (for Model compatibility)
+     * 
+     * @param string $sql SQL query
+     * @return \PDOStatement Prepared statement
+     */
+    public function prepare($sql)
+    {
+        return $this->pdo->prepare($sql);
+    }
+
+    /**
+     * Query method (for Model compatibility)
+     * 
+     * @param string $sql SQL query
+     * @param array $params Query parameters
+     * @return \PDOStatement Executed statement
+     */
+    public function query($sql, $params = [])
+    {
+        return $this->execute($sql, $params);
     }
 
     /**
