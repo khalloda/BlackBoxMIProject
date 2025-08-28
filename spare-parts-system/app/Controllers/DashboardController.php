@@ -19,14 +19,13 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Temporarily skip auth check for testing
-        // $this->requireAuth();
+        $this->requireAuth();
         
         $this->setTitle('Dashboard');
         
         // Use simple dashboard temporarily to avoid database errors
         return $this->view('dashboard/simple', [
-            'user' => Auth::user() ?: ['full_name' => 'Test User', 'role' => 'admin'],
+            'user' => Auth::user(),
             'flash_messages' => $this->getFlashMessages()
         ]);
     }

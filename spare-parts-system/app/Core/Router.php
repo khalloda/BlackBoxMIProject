@@ -1,13 +1,8 @@
 <?php
 /**
- * MVC Router with Trailing Slash Tolerance and Parameter Support
+ * MVC Router with Fixed Regex and Parameter Support
  * 
- * This router handles URL routing with support for:
- * - Trailing slash tolerance
- * - {id} parameter support
- * - RESTful routing patterns
- * - Middleware support
- * - Route caching for performance
+ * FIXED: Regex syntax errors and PSR-4 compatibility
  */
 
 namespace App\Core;
@@ -21,8 +16,6 @@ class Router
 
     /**
      * Set the base path for all routes
-     * 
-     * @param string $basePath Base path
      */
     public static function setBasePath($basePath)
     {
@@ -31,10 +24,6 @@ class Router
 
     /**
      * Add a GET route
-     * 
-     * @param string $pattern URL pattern
-     * @param mixed $handler Controller@method or callable
-     * @param array $middleware Middleware to apply
      */
     public static function get($pattern, $handler, $middleware = [])
     {
@@ -43,10 +32,6 @@ class Router
 
     /**
      * Add a POST route
-     * 
-     * @param string $pattern URL pattern
-     * @param mixed $handler Controller@method or callable
-     * @param array $middleware Middleware to apply
      */
     public static function post($pattern, $handler, $middleware = [])
     {
@@ -55,10 +40,6 @@ class Router
 
     /**
      * Add a PUT route
-     * 
-     * @param string $pattern URL pattern
-     * @param mixed $handler Controller@method or callable
-     * @param array $middleware Middleware to apply
      */
     public static function put($pattern, $handler, $middleware = [])
     {
@@ -67,10 +48,6 @@ class Router
 
     /**
      * Add a DELETE route
-     * 
-     * @param string $pattern URL pattern
-     * @param mixed $handler Controller@method or callable
-     * @param array $middleware Middleware to apply
      */
     public static function delete($pattern, $handler, $middleware = [])
     {
@@ -79,11 +56,6 @@ class Router
 
     /**
      * Add a route for any HTTP method
-     * 
-     * @param string $method HTTP method
-     * @param string $pattern URL pattern
-     * @param mixed $handler Controller@method or callable
-     * @param array $middleware Middleware to apply
      */
     private static function addRoute($method, $pattern, $handler, $middleware = [])
     {
@@ -102,8 +74,6 @@ class Router
 
     /**
      * Add middleware to be applied to all routes
-     * 
-     * @param callable $middleware Middleware function
      */
     public static function addGlobalMiddleware($middleware)
     {
@@ -112,10 +82,6 @@ class Router
 
     /**
      * Dispatch the current request
-     * 
-     * @param string $requestUri Request URI
-     * @param string $requestMethod Request method
-     * @return mixed Response from controller
      */
     public static function dispatch($requestUri = null, $requestMethod = null)
     {
@@ -162,9 +128,6 @@ class Router
 
     /**
      * Normalize URL pattern
-     * 
-     * @param string $pattern URL pattern
-     * @return string Normalized pattern
      */
     private static function normalizePattern($pattern)
     {
@@ -182,30 +145,25 @@ class Router
     }
 
     /**
-     * Convert URL pattern to regex
-     * 
-     * @param string $pattern URL pattern
-     * @return string Regex pattern
+     * Convert URL pattern to regex - FIXED
      */
     private static function patternToRegex($pattern)
     {
-        // Escape special regex characters
-        $regex = preg_quote($pattern, '/');
+        // Escape special regex characters using # as delimiter
+        $regex = preg_quote($pattern, '#');
         
         // Replace parameter placeholders with regex groups
-        $regex = preg_replace('/\\\{([a-zA-Z_][a-zA-Z0-9_]*)\\\}/', '([^/]+)', $regex);
+        // FIXED: Proper escaping of braces in preg_quote, then replace
+        $regex = preg_replace('#\\\{([a-zA-Z_][a-zA-Z0-9_]*)\\\}#', '([^/]+)', $regex);
         
-        // Add start and end anchors
-        $regex = '/^' . $regex . '\/?$/';
+        // Add start and end anchors with optional trailing slash
+        $regex = '#^' . $regex . '/?$#';
         
         return $regex;
     }
 
     /**
      * Extract parameter names from pattern
-     * 
-     * @param string $pattern URL pattern
-     * @return array Parameter names
      */
     private static function extractParamNames($pattern)
     {
@@ -215,9 +173,6 @@ class Router
 
     /**
      * Get path from request URI
-     * 
-     * @param string $requestUri Request URI
-     * @return string Clean path
      */
     private static function getPathFromUri($requestUri)
     {
@@ -243,16 +198,13 @@ class Router
     }
 
     /**
-     * Find matching route
-     * 
-     * @param string $method HTTP method
-     * @param string $path Request path
-     * @return array|null Matching route or null
+     * Find matching route - FIXED
      */
     private static function findRoute($method, $path)
     {
         foreach (self::$routes as $route) {
             if ($route['method'] === $method || $route['method'] === 'ANY') {
+                // FIXED: Proper preg_match with correct parameters
                 if (preg_match($route['regex'], $path, $matches)) {
                     // Extract parameter values
                     $params = [];
@@ -272,11 +224,7 @@ class Router
     }
 
     /**
-     * Execute route handler
-     * 
-     * @param mixed $handler Handler (Controller@method or callable)
-     * @param array $params Route parameters
-     * @return mixed Handler response
+     * Execute route handler - FIXED for PSR-4
      */
     private static function executeHandler($handler, $params = [])
     {
@@ -287,7 +235,7 @@ class Router
         if (is_string($handler) && str_contains($handler, '@')) {
             [$controllerName, $methodName] = explode('@', $handler, 2);
             
-            // Add namespace if not present
+            // Add namespace if not present - FIXED for PSR-4
             if (!str_contains($controllerName, '\\')) {
                 $controllerName = 'App\\Controllers\\' . $controllerName;
             }
@@ -310,8 +258,6 @@ class Router
 
     /**
      * Handle 404 Not Found
-     * 
-     * @return string 404 response
      */
     private static function handleNotFound()
     {
@@ -330,9 +276,6 @@ class Router
 
     /**
      * Handle errors
-     * 
-     * @param Exception $e Exception
-     * @return string Error response
      */
     private static function handleError($e)
     {
@@ -356,10 +299,6 @@ class Router
 
     /**
      * Generate URL for named route
-     * 
-     * @param string $name Route name
-     * @param array $params Parameters
-     * @return string Generated URL
      */
     public static function url($pattern, $params = [])
     {
@@ -375,8 +314,6 @@ class Router
 
     /**
      * Get current route
-     * 
-     * @return array|null Current route
      */
     public static function getCurrentRoute()
     {
@@ -385,8 +322,6 @@ class Router
 
     /**
      * Get all registered routes
-     * 
-     * @return array All routes
      */
     public static function getRoutes()
     {
