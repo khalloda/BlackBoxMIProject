@@ -24,7 +24,7 @@ if (APP_DEBUG) {
 date_default_timezone_set('Asia/Dubai');
 
 // Include autoloader
-require_once APP_ROOT . '/app/core/Autoloader.php';
+require_once APP_ROOT . '/app/core/autoloader.php';
 
 // Register autoloader
 App\Core\Autoloader::register();

@@ -1,8 +1,8 @@
 <?php
 /**
- * Fixed Authentication System for GoDaddy Plesk
+ * Fixed Authentication System - No Redirect Loop
  * 
- * Simplified session handling for better compatibility
+ * Simplified session handling with proper cookie configuration
  */
 
 namespace App\Core;
@@ -15,12 +15,21 @@ class Auth
     private static $sessionStarted = false;
 
     /**
-     * Start session with minimal configuration
+     * Start session with proper configuration
      */
     public static function startSession()
     {
         if (!self::$sessionStarted && session_status() === PHP_SESSION_NONE) {
-            // Minimal session configuration for maximum compatibility
+            // Configure session BEFORE starting
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path' => '/',
+                'domain' => '',
+                'secure' => isset($_SERVER['HTTPS']),
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+            
             session_name('SPMS_SESSION');
             session_start();
             self::$sessionStarted = true;
@@ -50,7 +59,10 @@ class Auth
             return false;
         }
         
-        // Set user session - simplified
+        // Regenerate session ID for security
+        session_regenerate_id(true);
+        
+        // Set user session - SIMPLE and RELIABLE
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_data'] = [
             'id' => $user['id'],
@@ -59,15 +71,11 @@ class Auth
             'full_name' => $user['full_name'],
             'role' => $user['role']
         ];
-        $_SESSION['login_time'] = time();
         $_SESSION['authenticated'] = true;
+        $_SESSION['login_time'] = time();
         
         // Set current user
         self::$user = $_SESSION['user_data'];
-        
-        // Force session write and restart for better compatibility
-        session_write_close();
-        session_start();
         
         return true;
     }
@@ -89,18 +97,16 @@ class Auth
     }
 
     /**
-     * Check if user is authenticated
+     * Check if user is authenticated - SIMPLE CHECK
      */
     public static function check()
     {
         self::startSession();
         
-        // Check multiple indicators for robust authentication check
-        return self::$user !== null && 
+        // Simple, reliable check
+        return isset($_SESSION['user_id']) && 
                isset($_SESSION['authenticated']) && 
-               $_SESSION['authenticated'] === true &&
-               isset($_SESSION['user_id']) &&
-               isset($_SESSION['user_data']);
+               $_SESSION['authenticated'] === true;
     }
 
     /**
@@ -126,7 +132,6 @@ class Auth
      */
     private static function loadUserFromSession()
     {
-        // Simple session loading without timeout checks for now
         if (isset($_SESSION['user_data']) && 
             isset($_SESSION['authenticated']) && 
             $_SESSION['authenticated'] === true &&
