@@ -57,11 +57,11 @@ class User extends Model
      */
     public function findByUsernameOrEmail($identifier)
     {
-        $sql = "SELECT * FROM {$this->table} 
+        $sql = "SELECT * FROM users 
                 WHERE (username = :username OR email = :email) 
                 AND is_active = 1";
         
-        return $this->db->selectOne($sql, [
+        return self::db()->selectOne($sql, [
             'username' => $identifier,
             'email' => $identifier
         ]);
@@ -75,11 +75,11 @@ class User extends Model
      */
     public function findByRememberToken($token)
     {
-        $sql = "SELECT * FROM {$this->table} 
+        $sql = "SELECT * FROM users 
                 WHERE remember_token = :token 
                 AND is_active = 1";
         
-        return $this->db->selectOne($sql, ['token' => $token]);
+        return self::db()->selectOne($sql, ['token' => $token]);
     }
 
     /**
@@ -165,7 +165,7 @@ class User extends Model
      */
     public function usernameExists($username, $excludeId = null)
     {
-        $sql = "SELECT id FROM {$this->table} WHERE username = :username";
+        $sql = "SELECT id FROM users WHERE username = :username";
         $params = ['username' => $username];
         
         if ($excludeId) {
@@ -173,7 +173,7 @@ class User extends Model
             $params['exclude_id'] = $excludeId;
         }
         
-        return $this->db->selectOne($sql, $params) !== null;
+        return self::db()->selectOne($sql, $params) !== null;
     }
 
     /**
@@ -185,7 +185,7 @@ class User extends Model
      */
     public function emailExists($email, $excludeId = null)
     {
-        $sql = "SELECT id FROM {$this->table} WHERE email = :email";
+        $sql = "SELECT id FROM users WHERE email = :email";
         $params = ['email' => $email];
         
         if ($excludeId) {
@@ -193,7 +193,7 @@ class User extends Model
             $params['exclude_id'] = $excludeId;
         }
         
-        return $this->db->selectOne($sql, $params) !== null;
+        return self::db()->selectOne($sql, $params) !== null;
     }
 
     /**
@@ -290,7 +290,7 @@ class User extends Model
         // Ensure limit is a positive integer to prevent SQL injection
         $limit = max(1, min(1000, (int)$limit));
         
-        $sql = "SELECT * FROM {$this->table} 
+        $sql = "SELECT * FROM users 
                 WHERE (username LIKE :query 
                    OR email LIKE :query 
                    OR full_name LIKE :query)
@@ -302,7 +302,7 @@ class User extends Model
             'query' => '%' . $query . '%'
         ];
         
-        return $this->db->select($sql, $params);
+        return self::db()->select($sql, $params);
     }
 
     /**
@@ -336,7 +336,7 @@ class User extends Model
     private function getUserQuotesCount($userId)
     {
         $sql = "SELECT COUNT(*) as count FROM quotes WHERE created_by = :user_id";
-        $result = $this->db->selectOne($sql, ['user_id' => $userId]);
+        $result = self::db()->selectOne($sql, ['user_id' => $userId]);
         return $result ? (int)$result['count'] : 0;
     }
 
@@ -349,7 +349,7 @@ class User extends Model
     private function getUserOrdersCount($userId)
     {
         $sql = "SELECT COUNT(*) as count FROM sales_orders WHERE created_by = :user_id";
-        $result = $this->db->selectOne($sql, ['user_id' => $userId]);
+        $result = self::db()->selectOne($sql, ['user_id' => $userId]);
         return $result ? (int)$result['count'] : 0;
     }
 
@@ -362,7 +362,7 @@ class User extends Model
     private function getUserInvoicesCount($userId)
     {
         $sql = "SELECT COUNT(*) as count FROM invoices WHERE created_by = :user_id";
-        $result = $this->db->selectOne($sql, ['user_id' => $userId]);
+        $result = self::db()->selectOne($sql, ['user_id' => $userId]);
         return $result ? (int)$result['count'] : 0;
     }
 

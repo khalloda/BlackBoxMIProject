@@ -203,9 +203,17 @@ class Database
      */
     public function selectOne($sql, $params = [])
     {
-        $stmt = $this->execute($sql, $params);
-        $result = $stmt->fetch();
-        return $result ?: null;
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($params as $k => $v) {
+            $bindKey = is_string($k) ? $k : ':' . $k;
+            if (!str_starts_with($bindKey, ':')) {
+                $bindKey = ':' . $bindKey;
+            }
+            $stmt->bindValue($bindKey, $v);
+        }
+        $stmt->execute();
+        $row = $stmt->fetch();
+        return $row ?: null;
     }
 
     /**
